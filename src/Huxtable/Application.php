@@ -13,6 +13,11 @@ class Application
 	/**
 	 * @var array
 	 */
+	protected $aliases=[];
+
+	/**
+	 * @var array
+	 */
 	protected $commands=[];
 
 	/**
@@ -66,12 +71,7 @@ class Application
 			throw new InvalidCommandException("No command specified", InvalidCommandException::UNSPECIFIED);
 		}
 
-		if(!isset($this->commands[$name]))
-		{
-			throw new InvalidCommandException("Command '{$name}' not registered", InvalidCommandException::UNDEFINED);
-		}
-
-		$command = $this->commands[$name];
+		$command = $this->getCommand($name);
 
 		// Attempt calling subcommand first
 		if(count($arguments) > 0)
@@ -115,12 +115,7 @@ class Application
 			return $this->getUsage();
 		}
 
-		if(!isset($this->commands[$commandName]))
-		{
-			throw new CommandInvokedException(sprintf("'%s' is not a %s command", $commandName, $this->name), 1);
-		}
-
-		$command     = $this->commands[$commandName];
+		$command     = $this->getCommand($commandName);
 		$subcommands = $command->getSubcommands();
 
 		if(count($subcommands) == 0)
@@ -161,6 +156,29 @@ OUTPUT;
 	}
 
 	/**
+	 * @param	string	$name
+	 * @return	string
+	 */
+	protected function getCommand($name)
+	{
+		if(!isset($this->commands[$name]))
+		{
+			// check known aliases
+			if(isset($this->aliases[$name]))
+			{
+				if(isset($this->commands[$this->aliases[$name]]))
+				{
+					return $this->commands[$this->aliases[$name]];
+				}
+			}
+
+			throw new InvalidCommandException("Unknown command '{$name}'", InvalidCommandException::UNDEFINED);
+		}
+
+		return $this->commands[$name];
+	}
+	
+	/**
 	 * @return	string
 	 */
 	public function getUsage()
@@ -192,6 +210,12 @@ OUTPUT;
 	public function registerCommand(Command $command)
 	{
 		$this->commands[$command->getName()] = $command;
+
+		$aliases = $command->getAliases();
+		foreach($aliases as $alias)
+		{
+			$this->aliases[$alias] = $command->getName();
+		}
 	}
 
 	/**
@@ -239,7 +263,7 @@ OUTPUT;
 		// Incorrect parameters given
 		catch(\BadFunctionCallException $e)
 		{
-			$command   = $this->commands[$this->input->getCommand()];
+			$command   = $this->getCommand($this->input->getCommand());
 			$usage     = $command->getUsage();
 			$arguments = $this->input->getCommandArguments();
 

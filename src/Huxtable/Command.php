@@ -8,14 +8,19 @@ namespace Huxtable;
 class Command
 {
 	/**
-	 * @var string
+	 * @var array
 	 */
-	protected $description;
+	protected $aliases=[];
 
 	/**
 	 * @var string
 	 */
 	protected $closure;
+
+	/**
+	 * @var string
+	 */
+	protected $description;
 
 	/**
 	 * @var string
@@ -27,7 +32,7 @@ class Command
 	 *
 	 * @var array
 	 */
-	protected $subcommands;
+	protected $subcommands=[];
 	
 	/**
 	 * @var string
@@ -47,11 +52,29 @@ class Command
 	}
 
 	/**
+	 * @param	string	$alias
+	 */
+	public function addAlias($alias)
+	{
+		$this->aliases[] = $alias;
+	}
+
+	/**
 	 * @param	Command	$command
 	 */
 	public function addSubcommand(Command $command)
 	{
 		$this->subcommands[$command->getName()] = $command;
+	}
+
+	/**
+	 * Return array of aliases
+	 *
+	 * @return	array
+	 */
+	public function getAliases()
+	{
+		return $this->aliases;
 	}
 
 	/**
