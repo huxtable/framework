@@ -43,6 +43,7 @@ class Output
 		$colorized .= isset($foregroundColors[$foreground]) ? "\033[".$foregroundColors[$foreground]."m" : '';
 		$colorized .= isset($backgroundColors[$background]) ? "\033[".$backgroundColors[$background]."m" : '';
 		$colorized .= $string;
+		$colorized .= "\033[0m";
 
 		return $colorized;
 	}
