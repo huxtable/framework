@@ -10,7 +10,7 @@ class Input
 	/**
 	 * @var array
 	 */
-	protected $arguments;
+	protected $arguments=[];
 
 	/**
 	 * @var string
@@ -20,7 +20,7 @@ class Input
 	/**
 	 * @var array
 	 */
-	protected $options;
+	protected $options=[];
 
 	/**
 	 * @param	array	$arguments
@@ -99,24 +99,25 @@ class Input
 		array_shift($arguments);
 
 		// Application options are any options before the command
-		$i=0;
-		while(isset($arguments[$i]) && substr($arguments[$i], 0, 1) == '-')
+		while(isset($arguments[0]) && substr($arguments[0], 0, 1) == '-')
 		{
 			// Short option
-			if(substr($arguments[$i], 1, 1) != '-')
+			if(substr($arguments[0], 1, 1) != '-')
 			{
-				$option = substr($arguments[$i], 1);
+				$option = substr($arguments[0], 1);
+
+				for($i=0; $i<strlen($option); $i++)
+				{
+					$this->options['application'][] = substr($option, $i, 1);
+				}
 			}
 			// Long option
 			else
 			{
-				$option = substr($arguments[$i], 2);
+				$this->options['application'][] = substr($arguments[0], 2);
 			}
 
-			$this->options['application'][] = $option;
 			array_shift($arguments);
-
-			$i++;
 		}
 
 		if(count($arguments) == 0)
@@ -137,14 +138,17 @@ class Input
 				if(substr($arguments[$i], 1, 1) != '-')
 				{
 					$option = substr($arguments[$i], 1);
+	
+					for($j=0; $j<strlen($option); $j++)
+					{
+						$this->options['command'][] = substr($option, $j, 1);
+					}
 				}
 				// Long option
 				else
 				{
-					$option = substr($arguments[$i], 2);
+					$this->options['command'][] = substr($arguments[$i], 2);
 				}
-	
-				$this->options['command'][] = $option;		
 			}
 			// Command arguments
 			else
