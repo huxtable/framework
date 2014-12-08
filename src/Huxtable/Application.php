@@ -99,6 +99,11 @@ class Application
 			));
 		}
 
+		foreach($this->input->getCommandOptions() as $option)
+		{
+			$command->setOption($option);
+		}
+
 		return call_user_func_array($command->getClosure(), $arguments);
 	}
 

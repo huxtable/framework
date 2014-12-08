@@ -28,6 +28,11 @@ class Command
 	protected $name;
 
 	/**
+	 * @var array
+	 */
+	protected $options=[];
+
+	/**
 	 * Array of Command objects
 	 *
 	 * @var array
@@ -153,13 +158,33 @@ class Command
 	}
 
 	/**
+	 * @param	string	$option
+	 * @return	boolean
+	 */
+	public function isSetOption($option)
+	{
+		return isset($this->options[$option]) && $this->options[$option] === true;
+	}
+
+	/**
+	 * @param	string	$option
+	 */
+	public function registerOption($option)
+	{
+		if(is_string($option))
+		{
+			$this->options[$option] = false;
+		}
+	}
+
+	/**
 	 * @param	mixed	$closure
 	 */
 	protected function setClosure($closure)
 	{
 		if($closure instanceof \Closure)
 		{
-			$this->closure = $closure;
+			$this->closure = $closure->bindTo($this);
 			return;
 		}
 
@@ -170,7 +195,7 @@ class Command
 	
 			if(count($pieces) == 2 && method_exists($pieces[0], $pieces[1]))
 			{
-				$this->closure = $closure;
+				$this->closure = $closure->bindTo($this);
 				return;
 			}
 		}
@@ -191,6 +216,17 @@ class Command
 		}
 
 		throw new Command\InvalidClosureException("Invalid closure passed for '{$this->name}'");
+	}
+
+	/**
+	 * @param	string	$option
+	 */
+	public function setOption($option)
+	{
+		if(isset($this->options[$option]))
+		{
+			$this->options[$option] = true;
+		}
 	}
 
 	/**
