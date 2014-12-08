@@ -158,12 +158,15 @@ class Command
 	}
 
 	/**
-	 * @param	string	$option
-	 * @return	boolean
+	 * @param	string	$key
+	 * @return	mixed
 	 */
-	public function isSetOption($option)
+	public function getOptionValue($key)
 	{
-		return isset($this->options[$option]) && $this->options[$option] === true;
+		if(isset($this->options[$key]) && !is_null($this->options[$key]))
+		{
+			return $this->options[$key];
+		}
 	}
 
 	/**
@@ -173,7 +176,7 @@ class Command
 	{
 		if(is_string($option))
 		{
-			$this->options[$option] = false;
+			$this->options[$option] = null;
 		}
 	}
 
@@ -219,13 +222,14 @@ class Command
 	}
 
 	/**
-	 * @param	string	$option
+	 * @param	string	$key
+	 * @param	string	$value
 	 */
-	public function setOption($option)
+	public function setOptionValue($key, $value)
 	{
-		if(isset($this->options[$option]))
+		if(array_key_exists($key, $this->options))
 		{
-			$this->options[$option] = true;
+			$this->options[$key] = $value;
 		}
 	}
 

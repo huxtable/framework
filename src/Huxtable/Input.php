@@ -114,7 +114,10 @@ class Input
 			// Long option
 			else
 			{
-				$this->options['application'][] = substr($arguments[0], 2);
+				$pieces = explode('=', substr($arguments[0], 2));
+				$value  = isset($pieces[1]) ? $pieces[1] : true;
+
+				$this->options['application'][$pieces[0]] = $value;
 			}
 
 			array_shift($arguments);
@@ -141,13 +144,16 @@ class Input
 	
 					for($j=0; $j<strlen($option); $j++)
 					{
-						$this->options['command'][] = substr($option, $j, 1);
+						$this->options['command'][substr($option, $j, 1)] = true;
 					}
 				}
 				// Long option
 				else
 				{
-					$this->options['command'][] = substr($arguments[$i], 2);
+					$pieces = explode('=', substr($arguments[$i], 2));
+					$value  = isset($pieces[1]) ? $pieces[1] : true;
+
+					$this->options['command'][$pieces[0]] = $value;
 				}
 			}
 			// Command arguments
