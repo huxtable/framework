@@ -113,6 +113,38 @@ class Command
 	}
 
 	/**
+	 * Return the command options whose values have been set
+	 *
+	 * @return	array
+	 */
+	public function getOptionsWithValues()
+	{
+		$options = [];
+
+		foreach( $this->options as $option => $value )
+		{
+			if( !is_null($value) )
+			{
+				$options[$option] = $value;
+			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	mixed
+	 */
+	public function getOptionValue($key)
+	{
+		if(isset($this->options[$key]) && !is_null($this->options[$key]))
+		{
+			return $this->options[$key];
+		}
+	}
+
+	/**
 	 * @return	Command
 	 */
 	public function getSubcommand($name)
@@ -155,18 +187,6 @@ class Command
 		}
 
 		return sprintf('%s %s', $this->name, implode(' ', $parameters));
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	mixed
-	 */
-	public function getOptionValue($key)
-	{
-		if(isset($this->options[$key]) && !is_null($this->options[$key]))
-		{
-			return $this->options[$key];
-		}
 	}
 
 	/**
