@@ -21,7 +21,7 @@ class Format
 		$now  = getdate();
 		$date = getdate($timestamp);
 
-		$detail = ($now[0] - $date[0] <= 15778500) ? sprintf('%2s:%02s', $date['hours'], $date['minutes']) : $date['year'];
+		$detail = ($now[0] - $date[0] <= 15778500) ? sprintf('%02s:%02s', $date['hours'], $date['minutes']) : $date['year'];
 		
 		return sprintf('%.3s %2s %5s', $date['month'], $date['mday'], $detail);
 	}
