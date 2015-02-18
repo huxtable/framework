@@ -21,6 +21,11 @@ class Application
 	protected $commands=[];
 
 	/**
+	 * @var Command
+	 */
+	protected $defaultCommand;
+
+	/**
 	 * @var int
 	 */
 	protected $exit=0;
@@ -210,6 +215,16 @@ OUTPUT;
 	}
 
 	/**
+	 * Optionally specify a command to run if the application is run without arguments
+	 *
+	 * @return	void
+	 */
+	public function registerDefaultCommand (Command $command)
+	{
+		$this->defaultCommand = $command;
+	}
+
+	/**
 	 * @param	Command	$command
 	 */
 	public function registerCommand(Command $command)
@@ -258,11 +273,24 @@ OUTPUT;
 					break;
 
 				case InvalidCommandException::UNSPECIFIED:
-					$output = $this->getUsage();
+
+					if (!is_null ($this->defaultCommand))
+					{
+						$output = call_user_func ($this->defaultCommand->getClosure());
+					}
+					else
+					{
+						$output = $this->getUsage();
+					}					
 					break;
 			}
 
-			echo $output.PHP_EOL;
+			if (substr ($output, strlen($output) - 1) != PHP_EOL)
+			{
+				$output .= PHP_EOL;
+			}
+
+			echo $output;
 			$this->exit = 1;
 		}
 		// Incorrect parameters given
