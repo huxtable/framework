@@ -43,6 +43,11 @@ class Application
 	/**
 	 * @var string
 	 */
+	protected $output='';
+
+	/**
+	 * @var string
+	 */
 	protected $version;
 
 	/**
@@ -247,12 +252,7 @@ OUTPUT;
 
 		try
 		{
-			echo $output = $this->callCommand($this->input->getCommand(), $this->input->getCommandArguments());
-
-			if(strlen($output) != 0 && substr($output, strlen($output) - 1) != PHP_EOL)
-			{
-				echo PHP_EOL;
-			}
+			$this->output = $this->callCommand($this->input->getCommand(), $this->input->getCommandArguments());
 		}
 
 		// Command not registered
@@ -262,7 +262,7 @@ OUTPUT;
 			{
 				case InvalidCommandException::UNDEFINED:
 
-					$output = sprintf
+					$this->output = sprintf
 					(
 						"%s: '%s' is not a %s command. See '%s help'",
 						$this->name,
@@ -274,23 +274,19 @@ OUTPUT;
 
 				case InvalidCommandException::UNSPECIFIED:
 
+					// Client has defined a default command
 					if (!is_null ($this->defaultCommand))
 					{
-						$output = call_user_func ($this->defaultCommand->getClosure());
+						$this->output = call_user_func ($this->defaultCommand->getClosure());
+						$this->stop();
 					}
 					else
 					{
-						$output = $this->getUsage();
+						$this->output = $this->getUsage();
 					}					
 					break;
 			}
 
-			if (substr ($output, strlen($output) - 1) != PHP_EOL)
-			{
-				$output .= PHP_EOL;
-			}
-
-			echo $output;
 			$this->exit = 1;
 		}
 		// Incorrect parameters given
@@ -314,13 +310,13 @@ OUTPUT;
 				}
 			}
 
-			echo sprintf('usage: %s %s', $this->name, $usage).PHP_EOL;
+			$this->output = sprintf('usage: %s %s', $this->name, $usage) . PHP_EOL;
 			$this->exit = 1;
 		}
 		// Exception thrown by command
 		catch(CommandInvokedException $e)
 		{
-			echo sprintf('%s: %s', $this->name, $e->getMessage()).PHP_EOL;
+			$this->output = sprintf ('%s: %s', $this->name, $e->getMessage()) . PHP_EOL;
 			$this->exit = $e->getCode();
 		}
 	}
@@ -330,6 +326,12 @@ OUTPUT;
 	 */
 	public function stop()
 	{
+		if (substr ($this->output, strlen($this->output) - 1) != PHP_EOL && !is_null ($this->output))
+		{
+			$this->output .= PHP_EOL;
+		}
+
+		echo $this->output;
 		exit($this->exit);
 	}
 
