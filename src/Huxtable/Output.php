@@ -70,6 +70,14 @@ class Output
 	}
 
 	/**
+	 * @param	string	$string
+	 */
+	public function string($string)
+	{
+		$this->buffer .= $string;
+	}
+
+	/**
 	 * @return	void
 	 */
 	public function unshiftLine($string)
