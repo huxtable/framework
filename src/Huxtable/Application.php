@@ -6,6 +6,7 @@
 namespace Huxtable;
 
 use Huxtable\Command\CommandInvokedException;
+use Huxtable\Command\IncorrectUsageException;
 use Huxtable\InvalidCommandException;
 
 class Application
@@ -318,6 +319,12 @@ OUTPUT;
 		{
 			$this->output = sprintf ('%s: %s', $this->name, $e->getMessage()) . PHP_EOL;
 			$this->exit = $e->getCode();
+		}
+		// Exception thrown by command: show usage
+		catch(IncorrectUsageException $e)
+		{
+			$this->output = sprintf( 'usage: %s %s', $this->name, $e->getMessage() ) . PHP_EOL;
+			$this->exit = 1;
 		}
 	}
 
