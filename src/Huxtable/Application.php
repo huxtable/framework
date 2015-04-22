@@ -199,7 +199,7 @@ OUTPUT;
 	 */
 	public function getUsage()
 	{
-		$usage  = "usage: {$this->name} <command> [<args>]".PHP_EOL.PHP_EOL;
+		$usage  = "usage: {$this->name} [--version] <command> [<args>]".PHP_EOL.PHP_EOL;
 		$usage .= "Commands are:".PHP_EOL;
 
 		foreach($this->commands as $command)
@@ -250,6 +250,15 @@ OUTPUT;
 	public function run()
 	{
 		ksort($this->commands);
+
+		$options = $this->input->getApplicationOptions();
+
+		// --version
+		if( isset($options['version'] ) )
+		{
+			$this->output = $this->commandVersion();
+			return;
+		}
 
 		try
 		{
