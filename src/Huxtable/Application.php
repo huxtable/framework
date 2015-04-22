@@ -67,7 +67,6 @@ class Application
 		$help->setUsage('help <command>');
 
 		$this->registerCommand($help);
-		$this->registerCommand(new Command('version', "Display version number", [$this, 'commandVersion']));
 	}
 
 	/**
