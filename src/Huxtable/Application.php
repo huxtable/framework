@@ -6,6 +6,7 @@
 namespace Huxtable;
 
 use Huxtable\Command\CommandInvokedException;
+use Huxtable\Command\IncorrectUsageException;
 use Huxtable\InvalidCommandException;
 
 class Application
@@ -21,6 +22,11 @@ class Application
 	protected $commands=[];
 
 	/**
+	 * @var Command
+	 */
+	protected $defaultCommand;
+
+	/**
 	 * @var int
 	 */
 	protected $exit=0;
@@ -34,6 +40,11 @@ class Application
 	 * @var string
 	 */
 	protected $name;
+
+	/**
+	 * @var string
+	 */
+	protected $output='';
 
 	/**
 	 * @var string
@@ -56,7 +67,6 @@ class Application
 		$help->setUsage('help <command>');
 
 		$this->registerCommand($help);
-		$this->registerCommand(new Command('version', "Display version number", [$this, 'commandVersion']));
 	}
 
 	/**
@@ -188,7 +198,7 @@ OUTPUT;
 	 */
 	public function getUsage()
 	{
-		$usage  = "usage: {$this->name} <command> [<args>]".PHP_EOL.PHP_EOL;
+		$usage  = "usage: {$this->name} [--version] <command> [<args>]".PHP_EOL.PHP_EOL;
 		$usage .= "Commands are:".PHP_EOL;
 
 		foreach($this->commands as $command)
@@ -207,6 +217,16 @@ OUTPUT;
 	public function getVersion()
 	{
 		return $this->version;
+	}
+
+	/**
+	 * Optionally specify a command to run if the application is run without arguments
+	 *
+	 * @return	void
+	 */
+	public function registerDefaultCommand (Command $command)
+	{
+		$this->defaultCommand = $command;
 	}
 
 	/**
@@ -230,14 +250,18 @@ OUTPUT;
 	{
 		ksort($this->commands);
 
+		$options = $this->input->getApplicationOptions();
+
+		// --version
+		if( isset($options['version'] ) )
+		{
+			$this->output = $this->commandVersion();
+			return;
+		}
+
 		try
 		{
-			echo $output = $this->callCommand($this->input->getCommand(), $this->input->getCommandArguments());
-
-			if(strlen($output) != 0 && substr($output, strlen($output) - 1) != PHP_EOL)
-			{
-				echo PHP_EOL;
-			}
+			$this->output = $this->callCommand($this->input->getCommand(), $this->input->getCommandArguments());
 		}
 
 		// Command not registered
@@ -247,7 +271,7 @@ OUTPUT;
 			{
 				case InvalidCommandException::UNDEFINED:
 
-					$output = sprintf
+					$this->output = sprintf
 					(
 						"%s: '%s' is not a %s command. See '%s help'",
 						$this->name,
@@ -258,11 +282,20 @@ OUTPUT;
 					break;
 
 				case InvalidCommandException::UNSPECIFIED:
-					$output = $this->getUsage();
+
+					// Client has defined a default command
+					if (!is_null ($this->defaultCommand))
+					{
+						$this->output = call_user_func ($this->defaultCommand->getClosure());
+						$this->stop();
+					}
+					else
+					{
+						$this->output = $this->getUsage();
+					}					
 					break;
 			}
 
-			echo $output.PHP_EOL;
 			$this->exit = 1;
 		}
 		// Incorrect parameters given
@@ -286,14 +319,20 @@ OUTPUT;
 				}
 			}
 
-			echo sprintf('usage: %s %s', $this->name, $usage).PHP_EOL;
+			$this->output = sprintf('usage: %s %s', $this->name, $usage) . PHP_EOL;
 			$this->exit = 1;
 		}
 		// Exception thrown by command
 		catch(CommandInvokedException $e)
 		{
-			echo sprintf('%s: %s', $this->name, $e->getMessage()).PHP_EOL;
+			$this->output = sprintf ('%s: %s', $this->name, $e->getMessage()) . PHP_EOL;
 			$this->exit = $e->getCode();
+		}
+		// Exception thrown by command: show usage
+		catch(IncorrectUsageException $e)
+		{
+			$this->output = sprintf( 'usage: %s %s', $this->name, $e->getMessage() ) . PHP_EOL;
+			$this->exit = 1;
 		}
 	}
 
@@ -302,6 +341,12 @@ OUTPUT;
 	 */
 	public function stop()
 	{
+		if (substr ($this->output, strlen($this->output) - 1) != PHP_EOL && !is_null ($this->output))
+		{
+			$this->output .= PHP_EOL;
+		}
+
+		echo $this->output;
 		exit($this->exit);
 	}
 
