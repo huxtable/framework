@@ -165,6 +165,68 @@ class Input
 			$i++;
 		}	
 	}
+
+
+	/**
+	 * Present a prompt and return the response
+	 * 
+	 * @param	string	$prompt
+	 * @param	string	$default	If response is empty, default answer will be used
+	 * @param	array	$choices	Array of choices to display
+	 * @return	string
+	 */
+	static public function prompt( $prompt, $default='', array $choices=[] )
+	{
+		if( count( $choices ) > 0 )
+		{
+			echo PHP_EOL;
+			for( $i=0; $i<count( $choices ); $i++ )
+			{
+				$index  = $i+1;
+				$option = sprintf(
+					'  %s %s',
+					Output::colorize( "[{$index}]", 'green' ),
+					$choices[$i]
+				);
+
+				echo $option . PHP_EOL;
+			}
+			echo PHP_EOL;
+		}
+
+		$output = sprintf(
+			'%s [%s]: ',
+			Output::colorize( $prompt, 'green' ),
+			Output::colorize( $default, 'yellow' )
+		);
+
+		$response = readline( $output );
+
+		if( strlen( $response ) == 0 )
+		{
+			$response = $default;
+		}
+
+		if( count( $choices ) > 0 )
+		{
+			$index = $response - 1;
+
+			if( isset( $choices[ $index ] ) )
+			{
+				$response = $choices[ $index ];
+			}
+			// Menu options are required, so call it again... :\
+			else
+			{
+				if( !in_array( $response, $choices ) )
+				{
+					$response = self::prompt( $prompt, $default, $choices );
+				}
+			}
+		}
+
+		return $response;
+	}
 }
 
 ?>
