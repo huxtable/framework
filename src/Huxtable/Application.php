@@ -52,12 +52,23 @@ class Application
 	protected $version;
 
 	/**
-	 * @param	string	$name		Application name
+	 * @param	string	$name				Application name
 	 * @param	string	$version
+	 * @param	string	$phpMinimumVersion
 	 * @param	Input	$input
 	 */
-	public function __construct($name, $version, Input $input=null)
+	public function __construct( $name, $version, $phpMinimumVersion=null, Input $input=null )
 	{
+		if( !is_null( $phpMinimumVersion ) )
+		{
+			if( version_compare( PHP_VERSION, $phpMinimumVersion, '>=' ) == false )
+			{
+				$this->exit = 1;
+				$this->output = "{$name}: Requires PHP {$phpMinimumVersion}+, found " . PHP_VERSION . PHP_EOL;
+				$this->stop();
+			}
+		}
+
 		$this->name    = $name;
 		$this->version = $version;
 		$this->input   = is_null($input) ? new Input() : $input;
@@ -347,7 +358,7 @@ OUTPUT;
 		}
 
 		echo $this->output;
-		exit($this->exit);
+		exit( $this->exit );
 	}
 
 	/**
