@@ -78,7 +78,15 @@ class Output
 	}
 
 	/**
-	 * @return	void
+	 * @return	string
+	 */
+	public static function underline( $string )
+	{
+		return sprintf( "\033[4m%s\033[0m", $string );
+	}
+
+	/**
+	 * @param	string	$string
 	 */
 	public function unshiftLine($string)
 	{
