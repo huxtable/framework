@@ -245,6 +245,19 @@ OUTPUT;
 	}
 
 	/**
+	 * @param	string	$message
+	 */
+	public function logError( $message )
+	{
+		if( $this->userDir instanceof FileInfo )
+		{
+			date_default_timezone_set( 'UTC' );
+			$logEntry = sprintf( "%s   %s\n", date( 'm/d/Y G:i:s' ), $message );
+			$this->userDir->child( 'error.log' )->putContents( $logEntry, true );
+		}
+	}
+
+	/**
 	 * Optionally specify a command to run if the application is run without arguments
 	 *
 	 * @return	void
