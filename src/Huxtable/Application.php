@@ -7,6 +7,7 @@ namespace Huxtable;
 
 use Huxtable\Command\CommandInvokedException;
 use Huxtable\Command\IncorrectUsageException;
+use Huxtable\FileInfo;
 use Huxtable\InvalidCommandException;
 
 class Application
@@ -47,6 +48,11 @@ class Application
 	protected $output='';
 
 	/**
+	 * @var FileInfo
+	 */
+	protected $userDir;
+
+	/**
 	 * @var string
 	 */
 	protected $version;
@@ -72,6 +78,14 @@ class Application
 		$this->name    = $name;
 		$this->version = $version;
 		$this->input   = is_null($input) ? new Input() : $input;
+
+		if( $this->userDir instanceof FileInfo )
+		{
+			if( !$this->userDir->isDir() )
+			{
+				$this->userDir->mkdir();
+			}
+		}
 
 		// Register default commands
 		$help = new Command('help', "Display help information about {$this->name}", [$this, 'commandHelp']);
