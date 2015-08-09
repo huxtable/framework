@@ -587,7 +587,10 @@ OUTPUT;
 			return $result;
 		}
 
-		echo 'done.' . PHP_EOL;
+		if( $verbose )
+		{
+			echo 'done.' . PHP_EOL;
+		}
 
 		$result['status'] = self::UPGRADE_SUCCESSFUL;
 		return $result;
