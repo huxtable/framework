@@ -47,6 +47,26 @@ class FileInfo extends \SplFileInfo
 	}
 
 	/**
+	 * @return	void
+	 */
+	public function copy( FileInfo $dest )
+	{
+		if( $dest->isDir() )
+		{
+			$destFile = $dest->child( $this->getFilename() );
+		}
+		else
+		{
+			$destFile = $dest;
+		}
+
+		if( $this->isFile() )
+		{
+			copy( $this->getPathname(), $destFile->getPathname() );
+		}
+	}
+
+	/**
 	 * @return	string
 	 */
 	public function getContents()
