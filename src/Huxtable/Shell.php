@@ -17,7 +17,9 @@ class Shell
 	 */
 	static public function exec( $command, $formatted=false, $prefix='> ' )
 	{
+		$commandOriginal = $command;
 		$command = $command . ' 2>&1';	// stifle output; we'll include it in the returned array
+
 		$result = exec( $command, $commandOutput, $exitCode );
 
 		$output['raw'] = '';
@@ -41,6 +43,7 @@ class Shell
 		$output['raw'] = trim( $output['raw'] );
 
 		return [
+			'command' => $commandOriginal,
 			'output' => $output,
 			'exitCode' => $exitCode
 		];

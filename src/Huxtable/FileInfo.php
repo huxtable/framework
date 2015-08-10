@@ -107,9 +107,10 @@ class FileInfo extends \SplFileInfo
 	 * @param	string	$data
 	 * @return	int
 	 */
-	public function putContents( $data )
+	public function putContents( $data, $append=false )
 	{
-		return file_put_contents( $this->getPathname(), $data );
+		$flags = $append ? FILE_APPEND : 0;
+		return file_put_contents( $this->getPathname(), $data, $flags );
 	}
 
 	/**
