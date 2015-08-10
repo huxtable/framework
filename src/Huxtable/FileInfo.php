@@ -109,11 +109,6 @@ class FileInfo extends \SplFileInfo
 	 */
 	public function putContents( $data )
 	{
-		if( !$this->isFile() )
-		{
-			throw new \Exception( "Could not put contents '{$this->getPathname()}'" );
-		}
-
 		return file_put_contents( $this->getPathname(), $data );
 	}
 
