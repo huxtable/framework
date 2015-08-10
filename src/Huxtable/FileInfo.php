@@ -130,6 +130,19 @@ class FileInfo extends \SplFileInfo
 
 		return rmdir( $this->getPathname() );
 	}
+
+	/**
+	 * @return	boolean
+	 */
+	public function unlink()
+	{
+		if( !$this->isFile() )
+		{
+			return false;
+		}
+
+		return unlink( $this->getPathname() );
+	}
 }
 
 ?>
