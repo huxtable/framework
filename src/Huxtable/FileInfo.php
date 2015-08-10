@@ -20,9 +20,10 @@ class FileInfo extends \SplFileInfo
 	 * If $this is a directory, return an array of Huxtable\FileInfo objects
 	 *   representing each child file
 	 *
+	 * @param	array	$skip	Filenames to skip
 	 * @return	array|false
 	 */
-	public function children()
+	public function children( $skip=[] )
 	{
 		if( !$this->isDir() )
 		{
@@ -34,7 +35,7 @@ class FileInfo extends \SplFileInfo
 
 		foreach( $filenames as $filename )
 		{
-			if( $filename == '.' || $filename == '..' )
+			if( $filename == '.' || $filename == '..' || in_array( $filename, $skip ) )
 			{
 				continue;
 			}
